@@ -1,69 +1,231 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+
+type AnalysisResult = {
+  url: string;
+  domain: string;
+  verdict: string;
+  score: number;
+  findings: string[];
+};
 
 export default function Home() {
+  const [url, setUrl] = useState("");
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const analyzeUrl = async () => {
+    if (!url.trim()) {
+      setError("Please enter a URL.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setResult(null);
+
+    try {
+      const response = await fetch("/api/url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Analysis failed.");
+      }
+
+      setResult(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Something went wrong."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <main className="min-h-screen bg-black text-white px-6 py-12">
+      <div className="max-w-3xl mx-auto">
+
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold tracking-tight">
+            PHISH<span className="text-red-500">X</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="text-gray-400 mt-4 text-lg">
+            Multi-Vector Phishing Detection System
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        {/* Scanner */}
+        <div className="border border-gray-800 rounded-2xl p-6 bg-gray-950">
+
+          {/* Tabs */}
+          <div className="grid grid-cols-3 gap-2 mb-6">
+            <button className="bg-red-600 rounded-lg py-3 font-medium">
+              🔗 URL
+            </button>
+
+            <button
+              disabled
+              className="bg-gray-900 rounded-lg py-3 text-gray-500 cursor-not-allowed"
+            >
+              📧 Email
+            </button>
+
+            <button
+              disabled
+              className="bg-gray-900 rounded-lg py-3 text-gray-500 cursor-not-allowed"
+            >
+              📱 QR Code
+            </button>
+          </div>
+
+          {/* Input */}
+          <label className="block text-sm text-gray-400 mb-2">
+            Enter a suspicious URL
+          </label>
+
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                analyzeUrl();
+              }
+            }}
+            placeholder="https://example.com"
+            className="w-full bg-black border border-gray-800 rounded-lg px-4 py-4 outline-none focus:border-red-500"
+          />
+
+          {/* Analyze button */}
+          <button
+            onClick={analyzeUrl}
+            disabled={loading}
+            className="w-full mt-4 bg-red-600 hover:bg-red-700 disabled:bg-gray-700 transition rounded-lg py-4 font-semibold"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {loading ? "ANALYZING..." : "ANALYZE URL"}
+          </button>
+
+          {/* Error */}
+          {error && (
+            <div className="mt-4 p-4 rounded-lg border border-red-800 bg-red-950 text-red-300">
+              {error}
+            </div>
+          )}
         </div>
-      </main>
-    </div>
+
+        {/* Result */}
+        {result && (
+          <div className="mt-8 border border-gray-800 rounded-2xl p-6 bg-gray-950">
+
+            <h2 className="text-2xl font-bold mb-6">
+              Analysis Result
+            </h2>
+
+            {/* Verdict */}
+            <div className="text-center border border-gray-800 rounded-xl p-6 mb-6">
+              <p className="text-gray-400 text-sm">
+                RISK LEVEL
+              </p>
+
+              <p
+                className={`text-3xl font-bold mt-2 ${
+                  result.score >= 60
+                    ? "text-red-500"
+                    : result.score >= 30
+                    ? "text-yellow-500"
+                    : "text-green-500"
+                }`}
+              >
+                {result.verdict}
+              </p>
+
+              <p className="text-gray-400 mt-2">
+                Risk Score:{" "}
+                <span className="text-white font-semibold">
+                  {result.score}/100
+                </span>
+              </p>
+            </div>
+
+            {/* URL information */}
+            <div className="mb-6">
+              <h3 className="font-semibold mb-3">
+                URL Information
+              </h3>
+
+              <div className="bg-black rounded-lg p-4 text-sm break-all">
+                <p>
+                  <span className="text-gray-500">URL:</span>{" "}
+                  {result.url}
+                </p>
+
+                <p className="mt-2">
+                  <span className="text-gray-500">Domain:</span>{" "}
+                  {result.domain}
+                </p>
+              </div>
+            </div>
+
+            {/* Findings */}
+            <div>
+              <h3 className="font-semibold mb-3">
+                Findings
+              </h3>
+
+              <div className="space-y-2">
+                {result.findings.map((finding, index) => (
+                  <div
+                    key={index}
+                    className="border border-gray-800 rounded-lg p-3 text-gray-300"
+                  >
+                    ⚠️ {finding}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* Features */}
+        <div className="grid grid-cols-3 gap-4 mt-6 text-center">
+
+          <div className="border border-gray-800 rounded-xl p-4">
+            <p className="text-2xl">🔗</p>
+            <p className="text-sm text-gray-400 mt-2">
+              URL Analysis
+            </p>
+          </div>
+
+          <div className="border border-gray-800 rounded-xl p-4">
+            <p className="text-2xl">📧</p>
+            <p className="text-sm text-gray-400 mt-2">
+              Email Analysis
+            </p>
+          </div>
+
+          <div className="border border-gray-800 rounded-xl p-4">
+            <p className="text-2xl">📱</p>
+            <p className="text-sm text-gray-400 mt-2">
+              QR Analysis
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
   );
 }
