@@ -219,13 +219,42 @@ export default function Home() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <header className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/30 bg-red-950/30 text-xs font-semibold tracking-wider text-red-400 uppercase mb-4">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-            Next-Gen Threat Intelligence
+          {/* Logo & Live Link Bar */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/30 bg-red-950/30 text-xs font-semibold tracking-wider text-red-400 uppercase">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+              Next-Gen Threat Intelligence
+            </div>
+
+            <a
+              href="https://phishx-psi.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-800 bg-slate-900/90 hover:border-red-500/60 text-xs text-slate-300 transition shadow-sm group"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Live:</span>
+              <span className="font-mono text-red-400 group-hover:underline">phishx-psi.vercel.app</span>
+              <span className="text-slate-500 group-hover:text-red-400 text-[10px]">↗</span>
+            </a>
           </div>
-          <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight">
-            PHISH<span className="text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]">X</span>
-          </h1>
+
+          {/* PhishX Shield Icon */}
+          <div className="flex items-center justify-center gap-3.5">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-red-600/20 via-slate-900 to-slate-950 border border-red-500/40 p-2.5 flex items-center justify-center shadow-lg shadow-red-950/50">
+              <svg viewBox="0 0 64 64" fill="none" className="w-full h-full drop-shadow-[0_0_10px_rgba(239,68,68,0.7)]">
+                <path d="M32 4 L56 12 C56 36 44 52 32 60 C20 52 8 36 8 12 Z" fill="#090d16" stroke="#ef4444" strokeWidth="3" />
+                <path d="M22 20 L42 44" stroke="#ffffff" strokeWidth="5" strokeLinecap="round" />
+                <path d="M42 20 L22 44" stroke="#ffffff" strokeWidth="5" strokeLinecap="round" />
+                <circle cx="32" cy="32" r="3.5" fill="#ef4444" />
+              </svg>
+            </div>
+
+            <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight">
+              PHISH<span className="text-red-500 drop-shadow-[0_0_25px_rgba(239,68,68,0.6)]">X</span>
+            </h1>
+          </div>
+
           <p className="text-slate-400 mt-3 text-base sm:text-lg max-w-xl mx-auto">
             Multi-Vector Phishing Detection System powered by Machine Learning, Heuristic Indicators, and Typosquatting String Matching.
           </p>
