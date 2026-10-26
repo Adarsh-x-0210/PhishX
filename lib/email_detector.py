@@ -178,6 +178,13 @@ def analyze_email(
     reply_display, reply_addr, reply_domain = extract_email_address(reply_to)
     return_display, return_addr, return_domain = extract_email_address(return_path)
 
+    # Helper for organizational root domain
+    def get_root_domain(d: str) -> str:
+        parts = d.lower().split(".")
+        if len(parts) >= 2:
+            return ".".join(parts[-2:])
+        return d.lower()
+
     # -------------------------------------------------------------
     # 1. Display Name Spoofing Check
     # -------------------------------------------------------------
@@ -187,7 +194,9 @@ def analyze_email(
             if target in from_display_lower:
                 # Check if the domain is legitimately associated with the target
                 is_legit = False
-                if target in TARGET_BRANDS:
+                if target in from_domain.lower():
+                    is_legit = True
+                elif target in TARGET_BRANDS:
                     for legit in TARGET_BRANDS[target]["legit_domains"]:
                         if from_domain == legit or from_domain.endswith("." + legit):
                             is_legit = True
@@ -207,8 +216,8 @@ def analyze_email(
     # -------------------------------------------------------------
     # 2. From vs Reply-To Mismatch Check
     # -------------------------------------------------------------
-    if reply_domain and from_domain and reply_domain != from_domain:
-        # Penalize when domains don't match (classic credential redirect)
+    if reply_domain and from_domain and get_root_domain(reply_domain) != get_root_domain(from_domain):
+        # Penalize when organizational domains don't match (classic credential redirect)
         score += 30
         finding = f"Reply-To Mismatch: Responses will be routed to '{reply_addr}' instead of sender '{from_addr}'."
         findings.append(finding)

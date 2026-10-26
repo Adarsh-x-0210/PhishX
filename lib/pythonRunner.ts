@@ -5,7 +5,7 @@ import path from "path";
 /**
  * Resolves the path to the Python executable, preferring the local .venv if available.
  */
-function getPythonPath(): string {
+function getPythonPath(): string | null {
   const cwd = process.cwd();
 
   // Windows virtualenv
@@ -16,7 +16,12 @@ function getPythonPath(): string {
   const unixVenv = path.join(cwd, ".venv", "bin", "python");
   if (fs.existsSync(unixVenv)) return unixVenv;
 
-  // Global fallbacks
+  // If deployed on Vercel serverless without venv, skip trying non-existent python binary
+  if (process.env.VERCEL) {
+    return null;
+  }
+
+  // Global fallbacks for local dev
   return process.platform === "win32" ? "python" : "python3";
 }
 
@@ -33,8 +38,12 @@ export interface PythonRunnerOptions {
 export async function runPythonDetector<T = unknown>(options: PythonRunnerOptions): Promise<T> {
   const { vector, data, filePath, timeoutMs = 15000 } = options;
   const pythonPath = getPythonPath();
-  const cwd = process.cwd();
 
+  if (!pythonPath) {
+    throw new Error("Python runtime not detected in this environment. Falling back to native TypeScript engine.");
+  }
+
+  const cwd = process.cwd();
   const args = ["-m", "lib.cli", "--vector", vector];
 
   if (filePath) {
@@ -56,7 +65,6 @@ export async function runPythonDetector<T = unknown>(options: PythonRunnerOption
       },
       (error, stdout, stderr) => {
         if (error) {
-          console.error("Python runner error:", error, stderr);
           // Try parsing stdout anyway in case the script emitted JSON error payload
           if (stdout && stdout.trim()) {
             try {
@@ -76,7 +84,6 @@ export async function runPythonDetector<T = unknown>(options: PythonRunnerOption
           const parsed = JSON.parse(stdout.trim());
           resolve(parsed);
         } catch (parseErr) {
-          console.error("Failed to parse Python output:", stdout);
           reject(new Error("Invalid response format from Python engine."));
         }
       }

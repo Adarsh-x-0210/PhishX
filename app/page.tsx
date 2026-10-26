@@ -219,24 +219,12 @@ export default function Home() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <header className="text-center mb-10">
-          {/* Logo & Live Link Bar */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-5">
+          {/* Tagline Badge */}
+          <div className="flex items-center justify-center mb-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/30 bg-red-950/30 text-xs font-semibold tracking-wider text-red-400 uppercase">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
               Next-Gen Threat Intelligence
             </div>
-
-            <a
-              href="https://phishx-psi.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-800 bg-slate-900/90 hover:border-red-500/60 text-xs text-slate-300 transition shadow-sm group"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>Live:</span>
-              <span className="font-mono text-red-400 group-hover:underline">phishx-psi.vercel.app</span>
-              <span className="text-slate-500 group-hover:text-red-400 text-[10px]">↗</span>
-            </a>
           </div>
 
           {/* PhishX Shield Icon */}

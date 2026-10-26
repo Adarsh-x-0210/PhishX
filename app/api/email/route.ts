@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runPythonDetector } from "@/lib/pythonRunner";
+import { analyzeEmailTS } from "@/lib/emailDetector";
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,12 +29,19 @@ export async function POST(req: NextRequest) {
       raw_email: rawEmail || undefined,
     };
 
-    const result = await runPythonDetector({
-      vector: "email",
-      data: payload,
-    });
-
-    return NextResponse.json(result);
+    // Attempt Python detector first if runtime environment supports it
+    try {
+      const result = await runPythonDetector({
+        vector: "email",
+        data: payload,
+      });
+      return NextResponse.json(result);
+    } catch (pyErr) {
+      // Seamless fallback to pure TypeScript engine (crucial for Vercel/serverless where python3 is not present)
+      console.warn("Python runner unavailable, executing TypeScript email engine:", pyErr);
+      const tsResult = analyzeEmailTS(payload);
+      return NextResponse.json(tsResult);
+    }
   } catch (error) {
     console.error("Email detection error:", error);
     return NextResponse.json(
